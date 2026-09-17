@@ -1,0 +1,626 @@
+/* =========================================
+   ARENALAKE — SOBRE
+   CUSTOM CSS
+   ========================================= */
+
+
+/* =========================================
+   VARIABLES
+   ========================================= */
+
+:root {
+    --arena-bg: #f8fafc;
+    --arena-bg-elevated: #ffffff;
+    --arena-surface: #ffffff;
+    --arena-surface-hover: #f1f5f9;
+    --arena-text-main: #0f172a;
+    --arena-text-muted: #475569;
+    --arena-orange: #b45309;
+    --arena-blue: #1d4ed8;
+    --arena-lines: #e2e8f0;
+
+    /* Variáveis dinâmicas de transição sutil de background (Modo Claro) */
+    --current-bg: #f8fafc;
+    --current-glow: rgba(29, 78, 216, 0.04);
+}
+
+html.dark {
+    --arena-bg: #121620;
+    --arena-bg-elevated: #161C28;
+    --arena-surface: #1C2436;
+    --arena-surface-hover: #232D42;
+    --arena-text-main: #F8FAFC;
+    --arena-text-muted: #94A3B8;
+    --arena-orange: #F39200;
+    --arena-blue: #58A6FF;
+    --arena-lines: #273142;
+
+    /* Variáveis dinâmicas de transição sutil de background (Modo Dark) */
+    --current-bg: #121620;
+    --current-glow: rgba(88, 166, 255, 0.08);
+}
+
+
+/* =========================================
+   BODY
+   ========================================= */
+
+body {
+    background-color: var(--current-bg, var(--arena-bg));
+    color: var(--arena-text-main);
+    overflow-x: hidden;
+    transition: background-color 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================
+   FULL-WIDTH LAYOUT (SEÇÕES BORDA A BORDA)
+   ========================================= */
+
+.page-wrapper {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+header {
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem clamp(1rem, 3.5vw, 3rem) 1rem clamp(1rem, 3.5vw, 3rem);
+}
+
+footer {
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2.5rem clamp(1rem, 3.5vw, 3rem);
+}
+
+
+/* =========================================
+   BACKGROUND GRID MASK
+   ========================================= */
+
+.bg-grid-mask {
+    position: fixed;
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(circle at 50% 40%,
+            var(--current-glow, rgba(88, 166, 255, 0.04)) 0%,
+            transparent 50%,
+            var(--current-bg, var(--arena-bg)) 85%);
+
+    z-index: -1;
+    transition: background 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* =========================================
+   SCROLL REVEAL
+   ========================================= */
+
+.reveal-up {
+    opacity: 0;
+
+    transform: translateY(40px);
+
+    transition:
+        opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-up.is-visible {
+    opacity: 1;
+
+    transform: translateY(0);
+}
+
+
+.reveal-fade {
+    opacity: 0;
+
+    transition:
+        opacity 1.5s ease-in-out;
+}
+
+.reveal-fade.is-visible {
+    opacity: 1;
+}
+
+
+/* =========================================
+   NODES
+   ========================================= */
+
+.node {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.node:hover {
+    background: #f8fafc;
+    border-color: #2563eb;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.16);
+    transform: scale(1.06);
+}
+
+html.dark .node {
+    background: rgba(28, 36, 54, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+html.dark .node:hover {
+    background: rgba(35, 45, 66, 0.95);
+    border-color: rgba(88, 166, 255, 0.6);
+    box-shadow: 0 0 25px rgba(88, 166, 255, 0.3), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+
+/* =========================================
+   SVG LINE DRAWING
+   ========================================= */
+
+.draw-line {
+    stroke-dasharray: 1000;
+
+    stroke-dashoffset: 1000;
+
+    transition:
+        stroke-dashoffset 2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+.is-visible .draw-line,
+.is-visible.draw-line {
+    stroke-dashoffset: 0;
+}
+
+
+/* =========================================
+   ARCHITECTURE 3D
+   ========================================= */
+
+.iso-container {
+    perspective: 1200px;
+    transform-style: preserve-3d;
+    min-height: 420px;
+    padding: 4rem 2rem;
+    overflow: visible;
+}
+
+
+.iso-grid {
+    position: relative;
+
+    width: 300px;
+    height: 300px;
+
+    margin: 0 auto;
+
+    transform:
+        rotateX(60deg) rotateZ(-45deg);
+
+    transform-style: preserve-3d;
+
+    transition:
+        transform 1s ease;
+}
+
+
+/* =========================================
+   ARCHITECTURE LAYERS
+   ========================================= */
+
+.iso-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    color: var(--arena-text-muted);
+    backdrop-filter: blur(8px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transform: translateZ(0);
+}
+
+html.dark .iso-layer {
+    background: rgba(28, 36, 54, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 16px 36px -6px rgba(0, 0, 0, 0.5);
+}
+
+.is-visible .iso-layer-1 {
+    transform: translateZ(0px);
+    opacity: 1;
+    border-color: #cbd5e1;
+}
+
+html.dark .is-visible .iso-layer-1 {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.is-visible .iso-layer-2 {
+    transform: translateZ(50px);
+    opacity: 1;
+    border-color: #94a3b8;
+}
+
+html.dark .is-visible .iso-layer-2 {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+
+.is-visible .iso-layer-3 {
+    transform: translateZ(100px);
+    opacity: 1;
+    border-color: var(--arena-orange);
+    color: var(--arena-orange);
+    background: rgba(254, 243, 199, 0.6);
+    box-shadow: 0 12px 28px -6px rgba(180, 83, 9, 0.15), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
+}
+
+html.dark .is-visible .iso-layer-3 {
+    background: rgba(243, 146, 0, 0.08);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 0 30px rgba(243, 146, 0, 0.12);
+}
+
+.is-visible .iso-layer-4 {
+    transform: translateZ(150px);
+    opacity: 1;
+    border-color: var(--arena-blue);
+    color: var(--arena-blue);
+    background: rgba(239, 246, 255, 0.7);
+    box-shadow: 0 12px 28px -6px rgba(29, 78, 216, 0.15), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
+}
+
+html.dark .is-visible .iso-layer-4 {
+    background: rgba(88, 166, 255, 0.08);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 0 30px rgba(88, 166, 255, 0.15);
+}
+
+
+/* =========================================
+   ARCHITECTURE TIMELINE
+   ========================================= */
+
+.architecture-timeline::before {
+    content: '';
+
+    position: absolute;
+
+    left: 5px;
+
+    top: 0;
+    bottom: 0;
+
+    width: 2px;
+
+    background:
+        linear-gradient(to bottom,
+            transparent,
+            var(--arena-lines),
+            transparent);
+}
+
+
+.timeline-dot {
+    position: absolute;
+
+    left: 0;
+
+    top: 6px;
+
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    border: 1px solid var(--arena-lines);
+
+    background: var(--arena-bg);
+
+    transform: translateX(-50%);
+
+    box-shadow:
+        0 0 0 4px var(--arena-bg);
+
+    transition:
+        all 0.3s ease;
+}
+
+
+.group:hover .timeline-dot {
+    border-color: var(--arena-text-main);
+
+    background: var(--arena-text-main);
+}
+
+
+.timeline-dot-orange {
+    border-color: var(--arena-orange);
+}
+
+
+.group:hover .timeline-dot-orange {
+    background: var(--arena-orange);
+
+    border-color: var(--arena-orange);
+}
+
+
+.timeline-dot-blue {
+    border-color: var(--arena-blue);
+}
+
+
+.group:hover .timeline-dot-blue {
+    background: var(--arena-blue);
+
+    border-color: var(--arena-blue);
+}
+
+
+/* =========================================
+   DATA PARTICLES
+   ========================================= */
+
+.data-particle-html {
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    will-change: left, top, opacity;
+}
+
+div.data-particle {
+    width: 4px;
+    height: 4px;
+    background-color: var(--arena-blue);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 8px var(--arena-blue);
+    opacity: 0;
+}
+
+
+.particle-orange {
+    background-color: var(--arena-orange);
+
+    box-shadow:
+        0 0 8px var(--arena-orange);
+}
+
+
+/* =========================================
+   DATA FLOW
+   ========================================= */
+
+@keyframes flowRight {
+
+    0% {
+        left: 0%;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        left: 100%;
+        opacity: 0;
+    }
+
+}
+
+
+.is-visible .animate-flow {
+    animation:
+        flowRight 3s linear infinite;
+}
+
+
+/* =========================================
+   ANIMATION DELAYS
+   ========================================= */
+
+.delay-1 {
+    animation-delay: 1s !important;
+}
+
+
+.delay-2 {
+    animation-delay: 2s !important;
+}
+
+
+.delay-100 {
+    transition-delay: 100ms;
+}
+
+
+.delay-200 {
+    transition-delay: 200ms;
+}
+
+
+.delay-300 {
+    transition-delay: 300ms;
+}
+
+
+/* =========================================
+   SCROLLBAR
+   ========================================= */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+
+::-webkit-scrollbar-track {
+    background: var(--arena-bg);
+}
+
+
+::-webkit-scrollbar-thumb {
+    background: var(--arena-lines);
+
+    border-radius: 3px;
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--arena-text-muted);
+}
+
+#arquitetura {
+    overflow: visible;
+}
+
+.architecture-timeline {
+    padding-left: 1.25rem;
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    body {
+        background-size: 70px 70px;
+    }
+
+
+    .iso-grid {
+        width: 250px;
+        height: 250px;
+    }
+
+
+    .architecture-timeline::before {
+        left: 5px;
+    }
+
+
+    .timeline-dot {
+        left: 5px;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .iso-grid {
+        width: 220px;
+        height: 220px;
+    }
+
+
+    body {
+        background-size: 60px 60px;
+    }
+
+}
+
+/* =========================================
+   ARENALAKE — PIPELINE DATA BEAM ANIMATION
+   ========================================= */
+
+/* Feixe Laser Horizontal (Desktop) */
+.pipeline-laser-beam {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 160px;
+    background: linear-gradient(90deg,
+            rgba(16, 185, 129, 0) 0%,
+            rgba(243, 146, 0, 0.7) 40%,
+            rgba(88, 166, 255, 1) 80%,
+            rgba(168, 85, 247, 0) 100%);
+    filter: drop-shadow(0 0 8px rgba(88, 166, 255, 0.8));
+    animation: dataStreamHorizontal 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes dataStreamHorizontal {
+    0% {
+        left: -160px;
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    100% {
+        left: 100%;
+        opacity: 0;
+    }
+}
+
+/* Feixe Laser Vertical (Mobile) */
+.pipeline-laser-beam-vertical {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(180deg,
+            rgba(16, 185, 129, 0) 0%,
+            rgba(243, 146, 0, 0.7) 40%,
+            rgba(88, 166, 255, 1) 80%,
+            rgba(168, 85, 247, 0) 100%);
+    filter: drop-shadow(0 0 8px rgba(88, 166, 255, 0.8));
+    animation: dataStreamVertical 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes dataStreamVertical {
+    0% {
+        top: -100px;
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 100%;
+        opacity: 0;
+    }
+}

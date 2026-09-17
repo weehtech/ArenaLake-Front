@@ -1,0 +1,332 @@
+/* =========================================
+   ESTILOS DA INDEX (HERO SECTION)
+   ========================================= */
+main.index-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    min-height: 0;
+    width: 100%;
+    padding: 1rem 0;
+}
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.8rem, 2vh, 1.2rem);
+}
+
+.hero-title {
+    font-size: clamp(2.1rem, 3.6vw + 0.8rem, 3.2rem);
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    word-break: break-word;
+}
+
+html.dark .hero-title {
+    color: #f0f6fc;
+}
+
+.hero-title-orange {
+    color: #b45309;
+}
+
+html.dark .hero-title-orange {
+    color: #f39200;
+}
+
+/* Texto de apoio com tipografia fluida */
+.hero-description {
+    font-size: clamp(0.95rem, 0.6vw + 0.65rem, 1.15rem);
+    line-height: 1.6;
+    color: #475569;
+    margin-bottom: 0.5rem;
+    max-width: 100%;
+}
+
+html.dark .hero-description {
+    color: #8b949e;
+}
+
+.cta-form {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* =========================================
+   BOTAO CTA PRINCIPAL (ESTILO VERCEL / LINEAR)
+   ========================================= */
+.cta-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: clamp(0.85rem, 1.2vw, 1rem) clamp(1.5rem, 2vw, 2.1rem);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, #fbbf24 0%, #f39200 40%, #d97706 100%);
+    color: #ffffff;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: clamp(0.95rem, 0.4vw + 0.8rem, 1.05rem);
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.15),
+        0 6px 20px -2px rgba(243, 146, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateZ(0);
+}
+
+/* Efeito de Halo de Fundo Luminoso */
+.cta-button::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 14px;
+    background: radial-gradient(circle at 50% 50%, rgba(243, 146, 0, 0.55), transparent 70%);
+    z-index: -1;
+    opacity: 0;
+    filter: blur(14px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+/* Faixa de Reflexo (Shine Effect) que corre o botão */
+.cta-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent);
+    transform: skewX(-20deg);
+    pointer-events: none;
+    animation: ctaShine 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes ctaShine {
+    0% {
+        left: -100%;
+    }
+
+    22%,
+    100% {
+        left: 200%;
+    }
+}
+
+/* Ícone de Terminal / Ação */
+.cta-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.18);
+    color: #ffffff;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Seta Direcional */
+.cta-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Estados de Hover e Clique */
+.cta-button:hover {
+    background: linear-gradient(135deg, #fcd34d 0%, #f39200 40%, #b45309 100%);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow:
+        0 10px 30px -4px rgba(243, 146, 0, 0.52),
+        0 4px 12px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.cta-button:hover::before {
+    opacity: 1;
+    transform: scale(1.06);
+}
+
+.cta-button:hover .cta-arrow {
+    transform: translateX(4px);
+}
+
+.cta-button:hover .cta-icon {
+    transform: scale(1.1);
+}
+
+.cta-button:active {
+    transform: translateY(0px) scale(0.98);
+    box-shadow:
+        0 2px 10px rgba(243, 146, 0, 0.3),
+        inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Micro-badge de suporte ao lado do botão */
+.cta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-family: 'DM Mono', monospace, sans-serif;
+    color: #475569;
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .cta-badge {
+    color: #8b949e;
+    background: rgba(22, 27, 34, 0.6);
+    border: 1px solid rgba(48, 54, 61, 0.6);
+    box-shadow: none;
+}
+
+.cta-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #3fb950;
+    box-shadow: 0 0 8px #3fb950;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .4;
+    }
+}
+
+/* =========================================
+   DASHBOARD / HERO IMAGE COM LUZ SUAVE E BORDAS ARREDONDADAS
+   ========================================= */
+.hero-image {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem;
+    z-index: 1;
+}
+
+/* Luz suave ao fundo do dashboard (Ambient Glow) */
+.hero-image::before {
+    content: '';
+    position: absolute;
+    inset: -5% -5%;
+    border-radius: 28px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(243, 146, 0, 0.3) 0%,
+        rgba(88, 166, 255, 0.18) 45%,
+        transparent 72%
+    );
+    filter: blur(48px);
+    transform: translateZ(0);
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.95;
+    transition: opacity 0.3s ease;
+}
+
+html:not(.dark) .hero-image::before {
+    background: radial-gradient(
+        ellipse at center,
+        rgba(243, 146, 0, 0.22) 0%,
+        rgba(29, 78, 216, 0.12) 48%,
+        transparent 72%
+    );
+    filter: blur(40px);
+    opacity: 0.85;
+}
+
+.hero-image img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 18px; /* Bordas arredondadas */
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 24px 48px -12px rgba(0, 0, 0, 0.55),
+        0 0 25px rgba(243, 146, 0, 0.12);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html:not(.dark) .hero-image img {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 20px 40px -12px rgba(15, 23, 42, 0.14),
+        0 0 20px rgba(243, 146, 0, 0.08);
+}
+
+.hero-image img:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow:
+        0 28px 56px -12px rgba(0, 0, 0, 0.65),
+        0 0 35px rgba(243, 146, 0, 0.2);
+}
+
+/* Distribuição de espaço em telas médias e grandes para dar maior destaque ao Dashboard */
+@media (min-width: 992px) {
+    main.index-main {
+        grid-template-columns: 1fr 1.35fr;
+        gap: clamp(2rem, 3.5vw, 4rem);
+    }
+}
+
+/* Responsividade da Index para telas menores ou alto nível de zoom */
+@media (max-width: 768px) {
+    main.index-main {
+        text-align: center;
+        padding: 0.5rem 0 2rem 0;
+    }
+
+    .hero-content {
+        align-items: center;
+    }
+
+    .cta-form {
+        justify-content: center;
+    }
+
+    .hero-image {
+        padding: 0.5rem 0;
+    }
+
+    .hero-image img {
+        border-radius: 14px;
+    }
+}

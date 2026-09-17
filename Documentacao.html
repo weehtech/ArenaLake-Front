@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Script Anti-FOUC: executa de forma síncrona antes do primeiro render -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('arenalake_theme');
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
+  <title>Documentação do Desenvolvedor | ArenaLake</title>
+  <meta name="description" content="Manual oficial de desenvolvimento, arquitetura, esteira de deploy e governança de infraestrutura do ArenaLake." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Ubuntu, Ubuntu Mono & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap"
+    rel="stylesheet" />
+
+  <!-- Tailwind Configuration com Tokens Canonical Ubuntu e ArenaLake -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ubuntu: {
+              orange: '#E95420',
+              orangeHover: '#d34311',
+              aubergine: '#77216F',
+              darkAubergine: '#2C001E',
+              midAubergine: '#5E2750',
+              terminal: '#300A24',
+              blue: '#19B6EE',
+              green: '#38B44A',
+              yellow: '#F99B11',
+              red: '#C7162B',
+            },
+            doc: {
+              bg: 'var(--doc-bg)',
+              surface: 'var(--doc-surface)',
+              surfaceAlt: 'var(--doc-surface-alt)',
+              border: 'var(--doc-border)',
+              textMain: 'var(--doc-text-main)',
+              textMuted: 'var(--doc-text-muted)',
+            }
+          },
+          fontFamily: {
+            ubuntu: ['Ubuntu', 'sans-serif'],
+            mono: ['"Ubuntu Mono"', 'monospace'],
+            sans: ['Inter', 'Ubuntu', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Estilos Customizados Inspirados no Vanilla Framework da Canonical */
+    :root {
+      --color-brand: #E95420;
+      --doc-bg: #F7F7F7;
+      --doc-surface: #FFFFFF;
+      --doc-surface-alt: #EFEFEF;
+      --doc-border: #E5E5E5;
+      --doc-text-main: #111111;
+      --doc-text-muted: #555555;
+    }
+
+    html.dark {
+      --doc-bg: #111622;
+      --doc-surface: #181F2E;
+      --doc-surface-alt: #1F2738;
+      --doc-border: rgba(255, 255, 255, 0.1);
+      --doc-text-main: #F8FAFC;
+      --doc-text-muted: #94A3B8;
+    }
+
+    body {
+      font-family: 'Ubuntu', 'Inter', sans-serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    code, kbd, samp, pre {
+      font-family: 'Ubuntu Mono', monospace;
+    }
+
+    /* Scrollbar personalizada minimalista */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.2);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(233, 84, 32, 0.5);
+    }
+
+    /* Efeito de âncora nos títulos */
+    .heading-anchor {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      text-decoration: none;
+    }
+    h2:hover .heading-anchor,
+    h3:hover .heading-anchor {
+      opacity: 1;
+    }
+
+    /* Callouts Canonical Vanilla */
+    .p-admonition {
+      position: relative;
+      padding: 1rem 1.25rem;
+      border-left-width: 4px;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+
+<body class="bg-doc-bg text-doc-textMain antialiased transition-colors duration-200">
+
+  <!-- ====================================================================
+       1. CABEÇALHO GLOBAL (HEADER CANONICAL STYLE)
+       ==================================================================== -->
+  <header class="sticky top-0 z-50 w-full border-b border-doc-border bg-doc-surface/95 backdrop-blur-md">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Version Tag -->
+      <div class="flex items-center gap-4">
+        <!-- Botão Mobile Menu Toggle -->
+        <button id="mobile-menu-toggle" type="button" class="lg:hidden p-2 text-doc-textMuted hover:text-doc-textMain hover:bg-white/5 rounded-lg focus:outline-none" aria-label="Abrir Navegação">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <a href="Index.html" class="flex items-center gap-2.5 group">
+          <img src="assets/img/ArenaLake_Branding.png" alt="ArenaLake Logo" class="h-8 sm:h-9 w-auto max-w-[180px] object-contain group-hover:opacity-90 transition-opacity" />
+          <span class="text-xs uppercase font-mono px-2 py-0.5 rounded bg-ubuntu-orange/15 text-ubuntu-orange border border-ubuntu-orange/30 font-semibold tracking-wider">Docs</span>
+        </a>
+
+        <!-- Seletor de Versão Ubuntu Style -->
+        <div class="hidden sm:flex items-center ml-2">
+          <div class="relative inline-block text-left">
+            <button id="version-btn" class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium rounded-md border border-doc-border hover:border-ubuntu-orange/50 text-doc-textMuted hover:text-doc-textMain bg-doc-surfaceAlt/60 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>v1.0 (LTS)</span>
+              <svg class="w-3.5 h-3.5 text-doc-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div id="version-menu" class="hidden absolute left-0 mt-1 w-36 rounded-md shadow-xl bg-doc-surface border border-doc-border py-1 text-xs font-mono z-50">
+              <a href="#" class="block px-3 py-1.5 text-ubuntu-orange font-bold bg-ubuntu-orange/10">v1.0 (LTS) • Prod</a>
+              <a href="#" class="block px-3 py-1.5 text-doc-textMuted hover:text-doc-textMain hover:bg-white/5">v1.1-dev • Homolog</a>
+              <a href="#" class="block px-3 py-1.5 text-doc-textMuted hover:text-doc-textMain hover:bg-white/5">v0.9 • Legacy</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Busca Rápida (Estilo Canonical / Algolia) -->
+      <div class="flex-1 max-w-xl mx-2 hidden md:block">
+        <button id="search-modal-btn" class="w-full flex items-center justify-between px-3.5 py-2 text-xs text-doc-textMuted bg-doc-bg/80 hover:bg-doc-bg border border-doc-border hover:border-ubuntu-orange/50 rounded-lg transition-all shadow-inner group">
+          <div class="flex items-center gap-2.5">
+            <svg class="w-4 h-4 text-doc-textMuted group-hover:text-ubuntu-orange transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span>Buscar documentação, portas, comandos...</span>
+          </div>
+          <kbd class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono font-medium rounded border border-doc-border bg-doc-surfaceAlt text-doc-textMuted">Ctrl K</kbd>
+        </button>
+      </div>
+
+      <!-- Links de Atalhos no Header -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="search-modal-btn-mobile" class="md:hidden p-2 text-doc-textMuted hover:text-doc-textMain hover:bg-white/5 rounded-lg" title="Buscar">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+
+        <a href="Sobre.html" class="hidden sm:inline-flex items-center text-xs font-medium text-doc-textMuted hover:text-doc-textMain px-2.5 py-1.5 rounded-md hover:bg-white/5 transition-colors">
+          Visão Geral
+        </a>
+
+        <!-- Link Tailscale Network -->
+        <a href="https://login.tailscale.com/a/ecb640001755d" target="_blank" rel="noopener noreferrer" class="hidden xl:inline-flex items-center gap-1 text-xs font-mono text-ubuntu-blue hover:underline px-2 py-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-ubuntu-blue animate-pulse"></span>
+          Tailscale VPN
+        </a>
+
+        <!-- GitHub Repository Button -->
+        <a href="https://github.com/L1K3D/arenalake-infra" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-doc-textMain bg-white/5 hover:bg-white/10 border border-doc-border rounded-lg transition-colors">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+          </svg>
+          <span class="hidden sm:inline">GitHub</span>
+        </a>
+
+        <!-- Botão de Alternância de Tema -->
+        <button id="theme-toggle" type="button" class="p-2 text-doc-textMuted hover:text-doc-textMain hover:bg-white/5 rounded-lg transition-colors" title="Alternar tema">
+          <svg id="theme-icon-dark" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="theme-icon-light" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ====================================================================
+       2. LAYOUT PRINCIPAL (3 COLUNAS: SIDEBAR ESQUERDA + CONTEÚDO + TOC DIREITA)
+       ==================================================================== -->
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-start gap-8">
+
+    <!-- SIDEBAR ESQUERDA (NAVEGAÇÃO EM ÁRVORE HIERÁRQUICA) -->
+    <aside id="doc-sidebar" class="fixed inset-y-0 left-0 z-40 w-72 lg:w-64 xl:w-72 bg-doc-surface lg:bg-transparent border-r border-doc-border lg:border-r lg:border-doc-border/60 p-4 lg:py-6 overflow-y-auto transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] transition-transform duration-300 ease-in-out">
+      
+      <!-- Cabeçalho Mobile da Sidebar -->
+      <div class="flex items-center justify-between lg:hidden pb-4 mb-4 border-b border-doc-border">
+        <a href="Index.html" class="flex items-center gap-2">
+          <img src="assets/img/ArenaLake_Branding.png" alt="ArenaLake Logo" class="h-7 w-auto object-contain" />
+          <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-ubuntu-orange/15 text-ubuntu-orange border border-ubuntu-orange/30 font-bold">Docs</span>
+        </a>
+        <button id="close-sidebar-btn" class="p-1.5 text-doc-textMuted hover:text-doc-textMain rounded-md">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Filtro Rápido de Tópicos -->
+      <div class="mb-5">
+        <div class="relative">
+          <input type="text" id="filter-topics" placeholder="Filtrar tópicos..." class="w-full text-xs bg-doc-bg/60 border border-doc-border rounded-md px-3 py-1.5 pl-8 text-doc-textMain placeholder-doc-textMuted focus:outline-none focus:border-ubuntu-orange" />
+          <svg class="w-3.5 h-3.5 text-doc-textMuted absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Árvore de Menus Hierárquicos -->
+      <nav class="space-y-6 text-xs" id="nav-tree">
+        
+        <!-- Grupo 1: Visão Geral -->
+        <div>
+          <div class="font-ubuntu font-bold uppercase tracking-wider text-[11px] text-ubuntu-orange mb-2.5 flex items-center justify-between">
+            <span>Visão Geral</span>
+          </div>
+          <ul class="space-y-1 pl-1 border-l border-doc-border/50">
+            <li>
+              <a href="#tecnologias" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Tecnologias Utilizadas
+              </a>
+            </li>
+            <li>
+              <a href="#estrutura-diretorios" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Estrutura de Diretórios
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Grupo 2: Arquitetura & Serviços -->
+        <div>
+          <div class="font-ubuntu font-bold uppercase tracking-wider text-[11px] text-ubuntu-orange mb-2.5 flex items-center justify-between">
+            <span>Arquitetura de Serviços</span>
+          </div>
+          <ul class="space-y-1 pl-1 border-l border-doc-border/50">
+            <li>
+              <a href="#arquitetura-servicos" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Docker Compose & Portas
+              </a>
+            </li>
+            <li>
+              <a href="#fluxo-provisionamento" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Fluxo de Workspace (VS Code)
+              </a>
+            </li>
+            <li>
+              <a href="#config-env" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Configuração do .env
+              </a>
+            </li>
+            <li>
+              <a href="#comandos-uteis" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Comandos Operacionais Úteis
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Grupo 3: Rede & VPN Mesh -->
+        <div>
+          <div class="font-ubuntu font-bold uppercase tracking-wider text-[11px] text-ubuntu-orange mb-2.5 flex items-center justify-between">
+            <span>Rede Mesh & Acesso</span>
+          </div>
+          <ul class="space-y-1 pl-1 border-l border-doc-border/50">
+            <li>
+              <a href="#tailscale-mesh" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Rede Tailscale (WireGuard)
+              </a>
+            </li>
+            <li>
+              <a href="#passo-conexao" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Conexão da Equipe & SSH
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Grupo 4: Ambiente Local -->
+        <div>
+          <div class="font-ubuntu font-bold uppercase tracking-wider text-[11px] text-ubuntu-orange mb-2.5 flex items-center justify-between">
+            <span>Ambiente Local (Dev)</span>
+          </div>
+          <ul class="space-y-1 pl-1 border-l border-doc-border/50">
+            <li>
+              <a href="#wsl2-docker" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                WSL2 & Docker Desktop
+              </a>
+            </li>
+            <li>
+              <a href="#clonando-iniciando" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Setup, .env Local & Deploy
+              </a>
+            </li>
+            <li>
+              <a href="#integracao-vscode" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Integração com VS Code
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Grupo 5: Esteira Git & Servidor -->
+        <div>
+          <div class="font-ubuntu font-bold uppercase tracking-wider text-[11px] text-ubuntu-orange mb-2.5 flex items-center justify-between">
+            <span>Esteira de Versionamento</span>
+          </div>
+          <ul class="space-y-1 pl-1 border-l border-doc-border/50">
+            <li>
+              <a href="#esteira-git" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Produção vs Homologação
+              </a>
+            </li>
+            <li>
+              <a href="#passo-a-passo-git" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Branches, Commits & PRs
+              </a>
+            </li>
+            <li>
+              <a href="#atualizando-servidor" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Atualização no Servidor Lenovo
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Grupo 6: Referência de Acessos -->
+        <div>
+          <div class="font-ubuntu font-bold uppercase tracking-wider text-[11px] text-ubuntu-orange mb-2.5 flex items-center justify-between">
+            <span>Referência de URLs</span>
+          </div>
+          <ul class="space-y-1 pl-1 border-l border-doc-border/50">
+            <li>
+              <a href="#portas-producao" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Ambiente de Produção (8443)
+              </a>
+            </li>
+            <li>
+              <a href="#portas-homolog" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Ambiente Homologação (10000)
+              </a>
+            </li>
+            <li>
+              <a href="#troubleshooting" class="nav-tree-link block py-1 px-3 border-l-2 border-transparent text-doc-textMuted hover:text-doc-textMain hover:border-ubuntu-orange transition-colors">
+                Dicas de Resolução de Problemas
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </nav>
+
+    </aside>
+
+    <!-- BACKDROP MOBILE PARA A SIDEBAR -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 z-30 hidden lg:hidden backdrop-blur-sm"></div>
+
+    <!-- ====================================================================
+         3. ÁREA CENTRAL DE CONTEÚDO (PROSE TÉCNICO ESTILO UBUNTU SERVER)
+         ==================================================================== -->
+    <main class="flex-1 min-w-0 py-8 lg:py-10 max-w-4xl">
+      
+      <!-- BREADCRUMBS -->
+      <nav class="flex items-center text-xs text-doc-textMuted mb-6 space-x-2 font-mono">
+        <a href="Index.html" class="hover:text-ubuntu-orange">Docs</a>
+        <span>/</span>
+        <a href="#tecnologias" class="hover:text-ubuntu-orange">Manual do Desenvolvedor</a>
+        <span>/</span>
+        <span class="text-doc-textMain">Guia de Engenharia e Operação</span>
+      </nav>
+
+      <!-- ARTIGO PRINCIPAL -->
+      <article class="prose prose-invert max-w-none">
+        
+        <!-- TÍTULO PRINCIPAL H1 -->
+        <div class="border-b border-doc-border pb-6 mb-10">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">OFICIAL</span>
+            <span class="text-xs text-doc-textMuted">Última atualização: Setembro 2026</span>
+            <span class="text-xs text-doc-textMuted">• 14 min de leitura</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-bold font-ubuntu tracking-tight text-doc-textMain mb-4">
+            Manual do Desenvolvedor — ArenaLake
+          </h1>
+          <p class="text-base text-doc-textMuted leading-relaxed">
+            Documentação técnica abrangente para engenheiros e cientistas de dados sobre arquitetura interna, microserviços Docker Compose, provisionamento dinâmico de clusters, esteira Git e acesso à malha Tailscale.
+          </p>
+        </div>
+
+        <!-- ================================================================
+             SEÇÃO 1: TECNOLOGIAS UTILIZADAS
+             ================================================================ -->
+        <section id="tecnologias" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Tecnologias Utilizadas</span>
+            <a href="#tecnologias" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+          
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-4">
+            O <strong class="text-doc-textMain">ArenaLake</strong> é uma plataforma de Data Lake plug-and-play focada em pequenas e médias empresas, orquestrada inteiramente via Docker Compose. O backend central é construído em Python utilizando o framework <strong class="text-doc-textMain">FastAPI</strong> para roteamento assíncrono de alta performance e Jinja2 para a renderização das interfaces de usuário.
+          </p>
+
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-6">
+            Através da biblioteca Docker SDK, o sistema provisiona dinamicamente ambientes isolados de desenvolvimento baseados no VS Code (<code class="text-xs px-1.5 py-0.5 rounded bg-white/10 font-mono text-ubuntu-orange">code-server</code>) para cada usuário registrado. O armazenamento de dados é gerenciado pelo <strong class="text-doc-textMain">MinIO</strong>, solução de alto rendimento 100% compatível com a API S3. O processamento distribuído opera sobre um cluster nativo do <strong class="text-doc-textMain">Apache Spark</strong>, enquanto o roteamento perimetral é assegurado pelo <strong class="text-doc-textMain">Traefik</strong> e túneis <strong class="text-doc-textMain">Tailscale WireGuard</strong>.
+          </p>
+
+          <!-- Callout Canonical: NOTA INFORMATIVA -->
+          <div class="p-admonition border-ubuntu-blue bg-ubuntu-blue/10 text-doc-textMain">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-ubuntu-blue flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div class="text-sm">
+                <span class="font-bold text-ubuntu-blue block mb-1">Nota de Arquitetura</span>
+                Todos os nós computacionais são instanciados sob demanda e compartilham a mesma rede bridge virtual isolada, garantindo latência inferior a 15ms nas trocas internas entre workers Spark e os buckets S3 MinIO.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 2: ESTRUTURA DE DIRETÓRIOS
+             ================================================================ -->
+        <section id="estrutura-diretorios" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Estrutura de Diretórios</span>
+            <a href="#estrutura-diretorios" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+          
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-4">
+            A organização do código-fonte segue uma divisão lógica orientada a componentes de infraestrutura e serviços do portal:
+          </p>
+
+          <div class="border border-doc-border rounded-lg bg-doc-surfaceAlt/40 overflow-hidden my-6">
+            <div class="divide-y divide-doc-border/60 font-mono text-xs">
+              <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-white/[0.02]">
+                <span class="text-ubuntu-orange font-bold">/deploy</span>
+                <span class="text-doc-textMuted font-sans">Arquivos de configuração e regras de roteamento dinâmico do Traefik.</span>
+              </div>
+              <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-white/[0.02]">
+                <span class="text-ubuntu-orange font-bold">/docker</span>
+                <span class="text-doc-textMuted font-sans">Arquivos <code class="bg-white/10 px-1 py-0.5 rounded">Dockerfile</code> para Spark Worker e Workspace VS Code.</span>
+              </div>
+              <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-white/[0.02]">
+                <span class="text-ubuntu-orange font-bold">/portal-compute</span>
+                <span class="text-doc-textMuted font-sans">Diretório principal da aplicação web FastAPI.</span>
+              </div>
+              <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-white/[0.02]">
+                <span class="text-ubuntu-orange font-bold">/portal-compute/core</span>
+                <span class="text-doc-textMuted font-sans">Lógica de negócios: <code class="bg-white/10 px-1 py-0.5 rounded">docker_mgr.py</code> e <code class="bg-white/10 px-1 py-0.5 rounded">s3_mgr.py</code>.</span>
+              </div>
+              <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-white/[0.02]">
+                <span class="text-ubuntu-orange font-bold">/portal-compute/routers</span>
+                <span class="text-doc-textMuted font-sans">Rotas da API REST (<code class="bg-white/10 px-1 py-0.5 rounded">api.py</code>) e páginas web Jinja2 (<code class="bg-white/10 px-1 py-0.5 rounded">ui.py</code>).</span>
+              </div>
+              <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-white/[0.02]">
+                <span class="text-ubuntu-orange font-bold">/portal-compute/static</span>
+                <span class="text-doc-textMuted font-sans">Arquivos estáticos de frontend (CSS, JS, imagens do dashboard).</span>
+              </div>
+              <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-white/[0.02]">
+                <span class="text-ubuntu-orange font-bold">/portal-compute/templates</span>
+                <span class="text-doc-textMuted font-sans">Templates Jinja2 que compõem a interface gráfica (Login, Setup, Dashboard).</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 3: ARQUITETURA DE SERVIÇOS (DOCKER COMPOSE)
+             ================================================================ -->
+        <section id="arquitetura-servicos" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Arquitetura de Serviços (Docker Compose)</span>
+            <a href="#arquitetura-servicos" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-6">
+            Os serviços do ArenaLake operam de forma isolada, comunicando-se através de uma rede bridge interna criptografada:
+          </p>
+
+          <!-- Tabela Técnica Estilo Canonical -->
+          <div class="overflow-x-auto my-6 border border-doc-border rounded-lg">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-doc-surfaceAlt border-b border-doc-border text-doc-textMain font-ubuntu font-bold">
+                  <th class="py-3 px-4">Serviço</th>
+                  <th class="py-3 px-4">Papel Principal</th>
+                  <th class="py-3 px-4 font-mono">Porta Interna</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-doc-border/60 text-doc-textMuted">
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-3 px-4 font-semibold text-doc-textMain">Portal</td>
+                  <td class="py-3 px-4">Backend FastAPI e painel de controle do sistema</td>
+                  <td class="py-3 px-4 font-mono text-ubuntu-blue">8000</td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-3 px-4 font-semibold text-doc-textMain">Traefik</td>
+                  <td class="py-3 px-4">Reverse Proxy e gerenciamento de rotas HTTP dinâmicas</td>
+                  <td class="py-3 px-4 font-mono text-ubuntu-blue">80</td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-3 px-4 font-semibold text-doc-textMain">MinIO</td>
+                  <td class="py-3 px-4">Object Storage resiliente compatível com S3 API</td>
+                  <td class="py-3 px-4 font-mono text-ubuntu-blue">9000 (API) / 9001 (Console)</td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-3 px-4 font-semibold text-doc-textMain">Spark Master</td>
+                  <td class="py-3 px-4">Nó orquestrador central do cluster de processamento</td>
+                  <td class="py-3 px-4 font-mono text-ubuntu-blue">7077 / 8080 (UI)</td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-3 px-4 font-semibold text-doc-textMain">VS Code Workspace</td>
+                  <td class="py-3 px-4">Container efêmero de desenvolvimento por usuário</td>
+                  <td class="py-3 px-4 font-mono text-ubuntu-blue">8080</td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-3 px-4 font-semibold text-doc-textMain">Spark Worker</td>
+                  <td class="py-3 px-4">Container efêmero de computação vinculado ao usuário</td>
+                  <td class="py-3 px-4 font-mono text-doc-textMuted">Dinâmica / Bridge</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 4: FLUXO DE PROVISIONAMENTO DO WORKSPACE
+             ================================================================ -->
+        <section id="fluxo-provisionamento" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Fluxo de Provisionamento (Workspace)</span>
+            <a href="#fluxo-provisionamento" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-6">
+            O ciclo de vida do ambiente computacional do usuário é orquestrado de forma totalmente automatizada:
+          </p>
+
+          <!-- Stepper de Provisionamento -->
+          <div class="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-doc-border">
+            
+            <div class="relative">
+              <span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-ubuntu-orange text-white text-[10px] font-mono font-bold flex items-center justify-center">1</span>
+              <h3 class="text-sm font-bold text-doc-textMain mb-1">Seleção de Hardware</h3>
+              <p class="text-xs text-doc-textMuted leading-relaxed">O usuário faz login e escolhe o perfil desejado (<code class="text-ubuntu-orange">Standard</code> ou <code class="text-ubuntu-orange">Extreme</code>) na interface de Setup.</p>
+            </div>
+
+            <div class="relative">
+              <span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-ubuntu-orange text-white text-[10px] font-mono font-bold flex items-center justify-center">2</span>
+              <h3 class="text-sm font-bold text-doc-textMain mb-1">Validação e Despacho</h3>
+              <p class="text-xs text-doc-textMuted leading-relaxed">O backend valida a sessão e despacha ordens à Docker API via SDK Python (<code class="text-ubuntu-blue">docker_mgr.py</code>).</p>
+            </div>
+
+            <div class="relative">
+              <span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-ubuntu-orange text-white text-[10px] font-mono font-bold flex items-center justify-center">3</span>
+              <h3 class="text-sm font-bold text-doc-textMain mb-1">Limpeza Preventiva</h3>
+              <p class="text-xs text-doc-textMuted leading-relaxed">Containers legados do mesmo usuário são descartados para garantir estado limpo e sem vazamento de memória.</p>
+            </div>
+
+            <div class="relative">
+              <span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-ubuntu-orange text-white text-[10px] font-mono font-bold flex items-center justify-center">4</span>
+              <h3 class="text-sm font-bold text-doc-textMain mb-1">Subida do Code-Server & Spark Worker</h3>
+              <p class="text-xs text-doc-textMuted leading-relaxed">O container VS Code é ativado com cgroups limitando CPU e RAM, acompanhado de seu Spark Worker associado.</p>
+            </div>
+
+            <div class="relative">
+              <span class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-ubuntu-orange text-white text-[10px] font-mono font-bold flex items-center justify-center">5</span>
+              <h3 class="text-sm font-bold text-doc-textMain mb-1">Persistência de Volumes & Roteamento</h3>
+              <p class="text-xs text-doc-textMuted leading-relaxed">Pastas físicas locais do host são montadas e o Traefik injeta uma rota dinâmica em tempo real no iframe do Dashboard.</p>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 5: CONFIGURAÇÃO DO .ENV & COMANDOS
+             ================================================================ -->
+        <section id="config-env" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Configuração do Ambiente (.env)</span>
+            <a href="#config-env" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-4">
+            A infraestrutura requer um arquivo <code class="text-xs px-1.5 py-0.5 rounded bg-white/10 font-mono text-ubuntu-orange">.env</code> na raiz do projeto contendo as credenciais de operação:
+          </p>
+
+          <!-- Bloco de Código Terminal com Botão Copiar -->
+          <div class="rounded-lg border border-doc-border overflow-hidden bg-ubuntu-terminal my-4 shadow-xl">
+            <div class="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-black/30">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-[#FF5F56]"></span>
+                <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
+                <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
+                <span class="ml-2 text-xs font-mono text-gray-400">.env</span>
+              </div>
+              <button class="copy-btn flex items-center gap-1 text-[11px] font-mono text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-white/10 transition-colors" data-code="# DataLake
+MINIO_ACCESS_KEY=arenalake_local
+MINIO_SECRET_KEY=arenalake123
+DATALAKE_STORAGE_PATH=.
+
+# Spark
+SPARK_MASTER_URL=spark://spark-master:7077
+
+# Ports
+PORTAL_PORT=8000
+TRAEFIK_WEB_PORT=80
+MINIO_API_PORT=9000
+MINIO_CONSOLE_PORT=9001
+SPARK_UI_PORT=8080
+
+# Network
+WORKSPACE_NETWORK=arenalake-local_arenalake-net">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>Copiar</span>
+              </button>
+            </div>
+            <pre class="p-4 text-xs font-mono text-gray-200 overflow-x-auto leading-relaxed"><code><span class="text-gray-500"># DataLake MinIO</span>
+MINIO_ACCESS_KEY=<span class="text-emerald-400">arenalake_local</span>
+MINIO_SECRET_KEY=<span class="text-emerald-400">arenalake123</span>
+DATALAKE_STORAGE_PATH=<span class="text-emerald-400">.</span>
+
+<span class="text-gray-500"># Spark Cluster</span>
+SPARK_MASTER_URL=<span class="text-ubuntu-blue">spark://spark-master:7077</span>
+
+<span class="text-gray-500"># Portas do Host</span>
+PORTAL_PORT=<span class="text-ubuntu-yellow">8000</span>
+TRAEFIK_WEB_PORT=<span class="text-ubuntu-yellow">80</span>
+MINIO_API_PORT=<span class="text-ubuntu-yellow">9000</span>
+MINIO_CONSOLE_PORT=<span class="text-ubuntu-yellow">9001</span>
+SPARK_UI_PORT=<span class="text-ubuntu-yellow">8080</span>
+
+<span class="text-gray-500"># Malha de Rede Bridge</span>
+WORKSPACE_NETWORK=<span class="text-ubuntu-orange">arenalake-local_arenalake-net</span></code></pre>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 6: COMANDOS ÚTEIS
+             ================================================================ -->
+        <section id="comandos-uteis" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Comandos Úteis de Operação</span>
+            <a href="#comandos-uteis" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+
+          <div class="space-y-4">
+            <!-- Comando 1 -->
+            <div>
+              <p class="text-xs font-semibold text-doc-textMain mb-1">Iniciar toda a infraestrutura em background:</p>
+              <div class="bg-black/40 border border-doc-border rounded-md px-3 py-2 flex items-center justify-between font-mono text-xs">
+                <code class="text-emerald-400">$ docker compose up -d</code>
+                <button class="copy-btn text-doc-textMuted hover:text-white" data-code="docker compose up -d">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Comando 2 -->
+            <div>
+              <p class="text-xs font-semibold text-doc-textMain mb-1">Forçar recompilação das imagens (Portal, Worker, VS Code):</p>
+              <div class="bg-black/40 border border-doc-border rounded-md px-3 py-2 flex items-center justify-between font-mono text-xs">
+                <code class="text-emerald-400">$ docker compose up -d --build</code>
+                <button class="copy-btn text-doc-textMuted hover:text-white" data-code="docker compose up -d --build">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Comando 3 -->
+            <div>
+              <p class="text-xs font-semibold text-doc-textMain mb-1">Derrubar serviços e expurgar redes órfãs:</p>
+              <div class="bg-black/40 border border-doc-border rounded-md px-3 py-2 flex items-center justify-between font-mono text-xs">
+                <code class="text-emerald-400">$ docker compose down --remove-orphans</code>
+                <button class="copy-btn text-doc-textMuted hover:text-white" data-code="docker compose down --remove-orphans">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Comando 4 -->
+            <div>
+              <p class="text-xs font-semibold text-doc-textMain mb-1">Acompanhar logs do Portal em tempo real:</p>
+              <div class="bg-black/40 border border-doc-border rounded-md px-3 py-2 flex items-center justify-between font-mono text-xs">
+                <code class="text-emerald-400">$ docker logs -f arenalake-prod-portal-1</code>
+                <button class="copy-btn text-doc-textMuted hover:text-white" data-code="docker logs -f arenalake-prod-portal-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 7: ACESSO À INFRAESTRUTURA (TAILSCALE MESH)
+             ================================================================ -->
+        <section id="tailscale-mesh" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Acesso à Infraestrutura (Rede Tailscale)</span>
+            <a href="#tailscale-mesh" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-4">
+            O ArenaLake utiliza o <strong class="text-doc-textMain">Tailscale</strong> para criar uma rede virtual privada (VPN Mesh) baseada no protocolo WireGuard, com criptografia ponta a ponta. Isso permite que qualquer desenvolvedor da equipe conecte sua máquina local diretamente ao servidor principal (<strong class="text-doc-textMain">Lenovo - Master Node</strong>) sem necessidade de abrir portas no roteador ou configurar firewalls.
+          </p>
+
+          <!-- Callout Canonical: WARNING / ATENÇÃO -->
+          <div class="p-admonition border-ubuntu-orange bg-ubuntu-orange/10 text-doc-textMain" id="passo-conexao">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-ubuntu-orange flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div class="text-sm">
+                <span class="font-bold text-ubuntu-orange block mb-1">Atenção Obrigatória no Ingresso</span>
+                Não crie uma rede nova no aplicativo do Tailscale. Você deve aceitar o convite oficial da rede corporativa utilizando estritamente a autenticação via <strong>GitHub</strong>.
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-lg font-bold font-ubuntu text-doc-textMain mt-6 mb-3">Passo a Passo de Entrada na Rede:</h3>
+          <ol class="list-decimal list-inside space-y-3 text-sm text-doc-textMuted">
+            <li><strong class="text-doc-textMain">Download e Instalação:</strong> Baixe o cliente em <a href="https://tailscale.com/download" target="_blank" class="text-ubuntu-blue underline">tailscale.com/download</a>.</li>
+            <li>
+              <strong class="text-doc-textMain">Link de Ingresso:</strong> Acesse o convite seguro:
+              <a href="https://login.tailscale.com/a/ecb640001755d" target="_blank" class="inline-block px-2.5 py-1 mt-1 text-xs font-mono text-ubuntu-orange bg-ubuntu-orange/10 border border-ubuntu-orange/30 rounded hover:underline">
+                https://login.tailscale.com/a/ecb640001755d
+              </a>
+            </li>
+            <li><strong class="text-doc-textMain">Autenticação com GitHub:</strong> Faça login com a conta GitHub da organização.</li>
+            <li><strong class="text-doc-textMain">Validação:</strong> O ícone ficará verde e você receberá um IP interno seguro no formato <code class="font-mono text-emerald-400">100.x.x.x</code>.</li>
+            <li>
+              <strong class="text-doc-textMain">Primeiro Acesso SSH:</strong> No PowerShell ou Terminal, valide sua credencial e redefina a senha padrão:
+              <div class="rounded bg-black/40 border border-doc-border p-3 font-mono text-xs text-gray-200 mt-2 space-y-1">
+                <div><span class="text-doc-textMuted">&gt;</span> ssh <span class="text-ubuntu-yellow">username</span>@<span class="text-emerald-400">100.x.x.x</span></div>
+                <div class="text-gray-500"># Digite a senha temporária fornecida pelo administrador</div>
+                <div><span class="text-doc-textMuted">&gt;</span> passwd</div>
+                <div class="text-gray-500"># Atualize para sua senha pessoal segura</div>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 8: AMBIENTE LOCAL COM WSL2
+             ================================================================ -->
+        <section id="wsl2-docker" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Ambiente Local de Testes (WSL2 & Docker)</span>
+            <a href="#wsl2-docker" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-4">
+            Para garantir que novos desenvolvimentos não causem regressão em homologação ou produção, é obrigatório testar as alterações localmente no Windows com o <strong class="text-doc-textMain">WSL2 (Ubuntu)</strong>.
+          </p>
+
+          <div class="space-y-6 my-6">
+            <!-- Etapa 1 -->
+            <div class="border border-doc-border p-4 rounded-lg bg-doc-surfaceAlt/30">
+              <h3 class="text-sm font-bold text-doc-textMain mb-2 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-ubuntu-orange"></span>
+                1. Ativar WSL2 e Integrar ao Docker Desktop
+              </h3>
+              <p class="text-xs text-doc-textMuted mb-2">Abra o PowerShell como Administrador e execute:</p>
+              <div class="bg-black/50 p-2.5 rounded font-mono text-xs text-emerald-400 flex items-center justify-between mb-3">
+                <code>wsl --install</code>
+                <button class="copy-btn text-doc-textMuted hover:text-white" data-code="wsl --install">Copiar</button>
+              </div>
+              <p class="text-xs text-doc-textMuted leading-relaxed">
+                Reinicie o computador, abra o <strong>Docker Desktop &gt; Settings &gt; Resources &gt; WSL Integration</strong>, marque <span class="text-doc-textMain">Ubuntu</span> e clique em <span class="text-doc-textMain">Apply &amp; Restart</span>.
+              </p>
+            </div>
+
+            <!-- Etapa 2 -->
+            <div class="border border-doc-border p-4 rounded-lg bg-doc-surfaceAlt/30" id="clonando-iniciando">
+              <h3 class="text-sm font-bold text-doc-textMain mb-2 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-ubuntu-orange"></span>
+                2. Clonar Repositório e Compilar
+              </h3>
+              <div class="bg-black/50 p-3 rounded font-mono text-xs text-gray-200 space-y-1">
+                <div><span class="text-ubuntu-orange">git</span> clone https://github.com/L1K3D/arenalake-infra.git</div>
+                <div><span class="text-ubuntu-orange">cd</span> arenalake-infra</div>
+                <div class="text-gray-500"># Crie o .env local com as credenciais antes de subir</div>
+                <div><span class="text-ubuntu-orange">docker compose</span> up -d --build</div>
+              </div>
+            </div>
+
+            <!-- Tabela Portas Locais -->
+            <div class="border border-doc-border rounded-lg overflow-hidden">
+              <div class="bg-doc-surfaceAlt px-4 py-2 text-xs font-ubuntu font-bold text-doc-textMain">
+                Serviços Disponíveis Localmente no Navegador
+              </div>
+              <table class="w-full text-left text-xs border-collapse">
+                <tbody class="divide-y divide-doc-border/60 text-doc-textMuted">
+                  <tr>
+                    <td class="py-2.5 px-4 font-semibold text-doc-textMain">Portal ArenaLake</td>
+                    <td class="py-2.5 px-4 font-mono text-ubuntu-blue"><a href="http://localhost:8000" target="_blank" class="hover:underline">http://localhost:8000</a></td>
+                    <td class="py-2.5 px-4">Dashboard principal de desenvolvimento</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-4 font-semibold text-doc-textMain">MinIO Console</td>
+                    <td class="py-2.5 px-4 font-mono text-ubuntu-blue"><a href="http://localhost:9001" target="_blank" class="hover:underline">http://localhost:9001</a></td>
+                    <td class="py-2.5 px-4">User: <code class="text-ubuntu-yellow">arenalake_local</code> / Pass: <code class="text-ubuntu-yellow">arenalake123</code></td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-4 font-semibold text-doc-textMain">Spark UI Monitoring</td>
+                    <td class="py-2.5 px-4 font-mono text-ubuntu-blue"><a href="http://localhost:8080" target="_blank" class="hover:underline">http://localhost:8080</a></td>
+                    <td class="py-2.5 px-4">Telemetria de jobs, DAGs e executors</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Integração VS Code -->
+            <div class="p-admonition border-ubuntu-green bg-ubuntu-green/10 text-doc-textMain" id="integracao-vscode">
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-ubuntu-green flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="text-sm">
+                  <span class="font-bold text-ubuntu-green block mb-1">Produtividade: Abrir no VS Code com 1 Comando</span>
+                  Dentro da pasta clonada no terminal do WSL, digite <code class="bg-black/30 px-1.5 py-0.5 rounded font-mono text-emerald-300">code .</code>. O VS Code abrirá conectado diretamente ao subsistema Linux via extensão WSL.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 9: ESTEIRA DE VERSIONAMENTO GIT
+             ================================================================ -->
+        <section id="esteira-git" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Esteira de Versionamento (Git Flow)</span>
+            <a href="#esteira-git" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-4">
+            Para blindar a integridade da plataforma, o servidor Lenovo hospeda dois ambientes distintos em paralelo:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+            <div class="border border-doc-border p-4 rounded-lg bg-doc-surfaceAlt/20">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-ubuntu-blue/15 text-ubuntu-blue border border-ubuntu-blue/30">HOMOLOGAÇÃO</span>
+              <h3 class="text-sm font-bold text-doc-textMain mt-2 mb-1">Branch <code class="text-ubuntu-blue">develop</code></h3>
+              <p class="text-xs text-doc-textMuted leading-relaxed">
+                Localizada em <code class="text-xs">/opt/arenalake-homolog</code>. Roda na porta 10000 com dados de teste. É aqui que novas features são validadas.
+              </p>
+            </div>
+            <div class="border border-doc-border p-4 rounded-lg bg-doc-surfaceAlt/20">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">PRODUÇÃO</span>
+              <h3 class="text-sm font-bold text-doc-textMain mt-2 mb-1">Branch <code class="text-emerald-400">main</code></h3>
+              <p class="text-xs text-doc-textMuted leading-relaxed">
+                Localizada em <code class="text-xs">/opt/arenalake-prod</code>. Roda na porta 8443. É o ambiente oficial dos clientes, 100% estável e auditado.
+              </p>
+            </div>
+          </div>
+
+          <h3 class="text-lg font-bold font-ubuntu text-doc-textMain mt-8 mb-4" id="passo-a-passo-git">Fluxo Diário de Commits e Pull Requests:</h3>
+
+          <!-- Terminal Tabs Git Workflow -->
+          <div class="rounded-lg border border-doc-border bg-ubuntu-terminal overflow-hidden my-6">
+            <div class="px-4 py-2 border-b border-white/10 bg-black/40 flex items-center justify-between text-xs font-mono text-gray-400">
+              <div class="flex items-center gap-3">
+                <span class="text-ubuntu-orange font-bold">git-workflow.sh</span>
+                <span>• Terminal Bash</span>
+              </div>
+              <button class="copy-btn text-doc-textMuted hover:text-white" data-code="git checkout develop
+git pull
+git checkout -b ftr-nome-da-tarefa
+git add .
+git commit -m 'feat: descricao da mudanca'
+git push origin ftr-nome-da-tarefa">Copiar Sequência</button>
+            </div>
+            <pre class="p-4 text-xs font-mono text-gray-200 overflow-x-auto leading-relaxed"><code><span class="text-gray-500"># 1. Puxe as atualizações mais recentes de develop</span>
+<span class="text-ubuntu-orange">git</span> checkout develop
+<span class="text-ubuntu-orange">git</span> pull
+
+<span class="text-gray-500"># 2. Crie uma branch isolada para a funcionalidade</span>
+<span class="text-ubuntu-orange">git</span> checkout -b ftr-minha-nova-funcionalidade
+
+<span class="text-gray-500"># 3. Adicione arquivos modificados e commite com padrão semântico</span>
+<span class="text-ubuntu-orange">git</span> add .
+<span class="text-ubuntu-orange">git</span> commit -m <span class="text-emerald-300">"feat: implementa novo seletor de perfil no setup"</span>
+
+<span class="text-gray-500"># 4. Envie a branch para o repositório remoto</span>
+<span class="text-ubuntu-orange">git</span> push origin ftr-minha-nova-funcionalidade</code></pre>
+          </div>
+
+          <div class="p-admonition border-ubuntu-aubergine bg-ubuntu-aubergine/10 text-doc-textMain" id="atualizando-servidor">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-ubuntu-aubergine flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <div class="text-sm">
+                <span class="font-bold text-ubuntu-orange block mb-1">Atualizando o Servidor Lenovo após o Merge:</span>
+                Após a aprovação do Pull Request no GitHub, acerte o servidor via SSH com o comando:
+                <code class="block bg-black/40 p-2 rounded font-mono text-xs text-emerald-400 mt-2">
+                  cd /opt/arenalake-homolog &amp;&amp; git pull &amp;&amp; docker compose up -d --build
+                </code>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             SEÇÃO 10: REFERÊNCIA DE ACESSOS E SERVIÇOS
+             ================================================================ -->
+        <section id="portas-producao" class="mb-14 scroll-mt-24">
+          <h2 class="text-2xl font-bold font-ubuntu text-doc-textMain mb-4 flex items-center group">
+            <span>Mapa de Acesso aos Ambientes (Servidor Lenovo)</span>
+            <a href="#portas-producao" class="heading-anchor ml-2 text-ubuntu-orange text-lg" aria-hidden="true">#</a>
+          </h2>
+
+          <p class="text-sm sm:text-base text-doc-textMuted leading-relaxed mb-6">
+            Estando conectado na rede Tailscale, o desenvolvedor pode se comunicar diretamente através do hostname <code class="text-ubuntu-blue font-mono">arenalakeserver</code> ou pelo IP interno:
+          </p>
+
+          <h3 class="text-base font-bold font-ubuntu text-emerald-400 mb-3 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            Ambiente de Produção (Oficial)
+          </h3>
+          <div class="overflow-x-auto border border-doc-border rounded-lg mb-8">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-doc-surfaceAlt text-doc-textMain font-ubuntu font-bold border-b border-doc-border">
+                  <th class="py-2.5 px-4">Serviço</th>
+                  <th class="py-2.5 px-4 font-mono">Endereço de Acesso</th>
+                  <th class="py-2.5 px-4">Observação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-doc-border/60 text-doc-textMuted font-mono">
+                <tr>
+                  <td class="py-2.5 px-4 font-sans font-medium text-doc-textMain">Portal ArenaLake</td>
+                  <td class="py-2.5 px-4 text-ubuntu-blue"><a href="https://arenalakeserver.tail8b9a43.ts.net" target="_blank" class="hover:underline">https://arenalakeserver.tail8b9a43.ts.net</a></td>
+                  <td class="py-2.5 px-4 font-sans">Acesso público criptografado via Funnel</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-sans font-medium text-doc-textMain">Workspace VS Code</td>
+                  <td class="py-2.5 px-4 text-ubuntu-blue">...ts.net:8443</td>
+                  <td class="py-2.5 px-4 font-sans">Carregado no iframe do Dashboard</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-sans font-medium text-doc-textMain">MinIO Console</td>
+                  <td class="py-2.5 px-4 text-ubuntu-yellow">http://arenalakeserver:9001</td>
+                  <td class="py-2.5 px-4 font-sans">Apenas via VPN. User: <code class="text-white">arenalake_prod</code></td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-sans font-medium text-doc-textMain">Spark Master UI</td>
+                  <td class="py-2.5 px-4 text-ubuntu-yellow">http://arenalakeserver:8080</td>
+                  <td class="py-2.5 px-4 font-sans">Apenas via VPN. Cluster monitor</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="text-base font-bold font-ubuntu text-ubuntu-blue mb-3 flex items-center gap-2" id="portas-homolog">
+            <span class="w-2 h-2 rounded-full bg-ubuntu-blue"></span>
+            Ambiente de Homologação (Testes)
+          </h3>
+          <div class="overflow-x-auto border border-doc-border rounded-lg mb-8">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-doc-surfaceAlt text-doc-textMain font-ubuntu font-bold border-b border-doc-border">
+                  <th class="py-2.5 px-4">Serviço</th>
+                  <th class="py-2.5 px-4 font-mono">Endereço de Acesso</th>
+                  <th class="py-2.5 px-4">Observação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-doc-border/60 text-doc-textMuted font-mono">
+                <tr>
+                  <td class="py-2.5 px-4 font-sans font-medium text-doc-textMain">Portal ArenaLake (Homolog)</td>
+                  <td class="py-2.5 px-4 text-ubuntu-blue">http://arenalakeserver:8081</td>
+                  <td class="py-2.5 px-4 font-sans">Via Traefik interno com Tailscale ativo</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-sans font-medium text-doc-textMain">Workspace VS Code (Homolog)</td>
+                  <td class="py-2.5 px-4 text-ubuntu-blue">...ts.net:10000</td>
+                  <td class="py-2.5 px-4 font-sans">Túnel externo na porta 10000</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-sans font-medium text-doc-textMain">MinIO Console (Homolog)</td>
+                  <td class="py-2.5 px-4 text-ubuntu-yellow">http://arenalakeserver:9011</td>
+                  <td class="py-2.5 px-4 font-sans">Apenas via VPN. User: <code class="text-white">arenalake_homolog</code></td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-sans font-medium text-doc-textMain">Spark Master UI (Homolog)</td>
+                  <td class="py-2.5 px-4 text-ubuntu-yellow">http://arenalakeserver:8090</td>
+                  <td class="py-2.5 px-4 font-sans">Apenas via VPN. Monitor do cluster de testes</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Troubleshooting Section -->
+          <div class="border border-doc-border rounded-lg p-5 bg-doc-surfaceAlt/20 my-6" id="troubleshooting">
+            <h3 class="text-base font-bold font-ubuntu text-doc-textMain mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5 text-ubuntu-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Dicas de Resolução de Problemas Rápidos
+            </h3>
+            <ul class="space-y-3 text-xs text-doc-textMuted">
+              <li class="flex items-start gap-2">
+                <span class="text-ubuntu-orange font-bold">1.</span>
+                <span><strong>MinIO ou Spark não abrem:</strong> Certifique-se de que o aplicativo do Tailscale está conectado (ícone verde). Os endereços <code class="text-white font-mono">http://arenalakeserver:...</code> dependem da resolução DNS interna da malha VPN.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-ubuntu-orange font-bold">2.</span>
+                <span><strong>Falha de DNS do nome da máquina:</strong> Substitua o nome <code class="text-white font-mono">arenalakeserver</code> pelo IPv4 direto da máquina Lenovo no Tailscale (exemplo: <code class="text-emerald-400 font-mono">http://100.115.x.x:9001</code>).</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+      </article>
+
+      <!-- ================================================================
+           RODAPÉ DO ARTIGO (PAGINAÇÃO & FEEDBACK)
+           ================================================================ -->
+      <div class="border-t border-doc-border pt-8 mt-16 space-y-6">
+        
+        <!-- Feedback Widget -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-lg bg-doc-surfaceAlt/30 border border-doc-border text-xs">
+          <div class="text-doc-textMuted">
+            Esta documentação técnica foi útil para sua configuração?
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 rounded border border-doc-border hover:border-emerald-500 text-doc-textMain hover:bg-emerald-500/10 transition-colors">
+              Sim 👍
+            </button>
+            <button class="px-3 py-1.5 rounded border border-doc-border hover:border-ubuntu-orange text-doc-textMain hover:bg-ubuntu-orange/10 transition-colors">
+              Não 👎
+            </button>
+          </div>
+        </div>
+
+        <!-- Botões de Paginação Anterior / Próximo -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <a href="Sobre.html" class="flex flex-col p-4 border border-doc-border hover:border-ubuntu-orange/60 rounded-lg group transition-colors">
+            <span class="text-[11px] font-mono text-doc-textMuted group-hover:text-ubuntu-orange">← Anterior</span>
+            <span class="text-sm font-ubuntu font-bold text-doc-textMain mt-1">Sobre a Plataforma ArenaLake</span>
+          </a>
+          <a href="https://github.com/L1K3D/arenalake-infra" target="_blank" class="flex flex-col text-right p-4 border border-doc-border hover:border-ubuntu-orange/60 rounded-lg group transition-colors">
+            <span class="text-[11px] font-mono text-doc-textMuted group-hover:text-ubuntu-orange">Próximo →</span>
+            <span class="text-sm font-ubuntu font-bold text-doc-textMain mt-1">Repositório Oficial no GitHub</span>
+          </a>
+        </div>
+
+        <!-- Link Editar no GitHub -->
+        <div class="flex items-center justify-between text-xs text-doc-textMuted pt-4">
+          <a href="https://github.com/L1K3D/arenalake-infra" target="_blank" class="inline-flex items-center gap-1.5 hover:text-ubuntu-orange transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Editar esta página no GitHub
+          </a>
+          <span>© 2026 ArenaLake Protocol • Ubuntu / Canonical Docs Standard</span>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- ====================================================================
+         4. SIDEBAR DIREITA ("NESTA PÁGINA" / ON THIS PAGE - SCROLLSPY)
+         ==================================================================== -->
+    <aside class="hidden xl:block w-64 sticky top-20 py-8 text-xs shrink-0 self-start">
+      <div class="font-ubuntu font-bold text-doc-textMain mb-3 uppercase tracking-wider text-[11px] flex items-center gap-2">
+        <svg class="w-3.5 h-3.5 text-ubuntu-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+        </svg>
+        <span>Nesta Página</span>
+      </div>
+
+      <nav class="border-l border-doc-border/60 pl-3 space-y-2 text-doc-textMuted" id="toc-nav">
+        <a href="#tecnologias" class="toc-link block hover:text-doc-textMain transition-colors">Tecnologias Utilizadas</a>
+        <a href="#estrutura-diretorios" class="toc-link block hover:text-doc-textMain transition-colors">Estrutura de Diretórios</a>
+        <a href="#arquitetura-servicos" class="toc-link block hover:text-doc-textMain transition-colors">Arquitetura de Serviços</a>
+        <a href="#fluxo-provisionamento" class="toc-link block hover:text-doc-textMain transition-colors pl-2">Fluxo de Workspace</a>
+        <a href="#config-env" class="toc-link block hover:text-doc-textMain transition-colors">Configuração .env</a>
+        <a href="#comandos-uteis" class="toc-link block hover:text-doc-textMain transition-colors">Comandos Úteis</a>
+        <a href="#tailscale-mesh" class="toc-link block hover:text-doc-textMain transition-colors">Rede Tailscale</a>
+        <a href="#wsl2-docker" class="toc-link block hover:text-doc-textMain transition-colors">Ambiente Local WSL2</a>
+        <a href="#esteira-git" class="toc-link block hover:text-doc-textMain transition-colors">Esteira Git Flow</a>
+        <a href="#portas-producao" class="toc-link block hover:text-doc-textMain transition-colors">Portas de Produção</a>
+        <a href="#portas-homolog" class="toc-link block hover:text-doc-textMain transition-colors pl-2">Portas de Homologação</a>
+        <a href="#troubleshooting" class="toc-link block hover:text-doc-textMain transition-colors">Resolução de Problemas</a>
+      </nav>
+
+      <!-- Botão Voltar ao Topo -->
+      <div class="mt-8 pt-4 border-t border-doc-border/50">
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="inline-flex items-center gap-1.5 text-doc-textMuted hover:text-ubuntu-orange transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          Voltar ao topo
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- ====================================================================
+       5. MODAL DE BUSCA RÁPIDA GLOBAL (CTRL + K)
+       ==================================================================== -->
+  <div id="search-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-start justify-center pt-20 px-4">
+    <div class="w-full max-w-2xl bg-doc-surface border border-doc-border rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div class="p-4 border-b border-doc-border flex items-center gap-3">
+        <svg class="w-5 h-5 text-ubuntu-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input type="text" id="search-input" placeholder="Buscar por tópicos, portas, spark, docker, tailscale..." class="w-full bg-transparent border-none text-doc-textMain placeholder-doc-textMuted text-sm focus:outline-none" autofocus />
+        <kbd class="px-2 py-0.5 text-xs font-mono rounded bg-white/5 border border-doc-border text-doc-textMuted cursor-pointer" id="close-modal-btn">ESC</kbd>
+      </div>
+      <div id="search-results" class="max-h-96 overflow-y-auto p-2 divide-y divide-doc-border/40 text-xs">
+        <a href="#tecnologias" class="search-result-item block p-3 rounded-lg hover:bg-white/5 text-doc-textMain">
+          <div class="font-bold text-ubuntu-orange">Tecnologias Utilizadas</div>
+          <div class="text-doc-textMuted mt-0.5">FastAPI, MinIO S3, Apache Spark, Traefik e Tailscale WireGuard.</div>
+        </a>
+        <a href="#arquitetura-servicos" class="search-result-item block p-3 rounded-lg hover:bg-white/5 text-doc-textMain">
+          <div class="font-bold text-ubuntu-orange">Arquitetura de Serviços &amp; Portas</div>
+          <div class="text-doc-textMuted mt-0.5">Tabela de portas internas: 8000, 9000, 9001, 7077, 8080.</div>
+        </a>
+        <a href="#tailscale-mesh" class="search-result-item block p-3 rounded-lg hover:bg-white/5 text-doc-textMain">
+          <div class="font-bold text-ubuntu-orange">Rede Tailscale &amp; Acesso Seguro</div>
+          <div class="text-doc-textMuted mt-0.5">Conexão via VPN Mesh, IPs 100.x.x.x e autenticação via GitHub.</div>
+        </a>
+        <a href="#wsl2-docker" class="search-result-item block p-3 rounded-lg hover:bg-white/5 text-doc-textMain">
+          <div class="font-bold text-ubuntu-orange">Ambiente Local (WSL2 &amp; Docker)</div>
+          <div class="text-doc-textMuted mt-0.5">Como rodar o ambiente completo no Windows com Ubuntu WSL2.</div>
+        </a>
+        <a href="#esteira-git" class="search-result-item block p-3 rounded-lg hover:bg-white/5 text-doc-textMain">
+          <div class="font-bold text-ubuntu-orange">Esteira Git &amp; Servidor Lenovo</div>
+          <div class="text-doc-textMuted mt-0.5">Branches develop e main, Pull Requests e deploy em /opt/arenalake.</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       6. SCRIPTS INTERATIVOS (SEARCH, TOC SCROLLSPY, COPY, THEME, MOBILE)
+       ==================================================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // --- 1. Copiar Código para a Área de Transferência ---
+      const copyButtons = document.querySelectorAll('.copy-btn');
+      copyButtons.forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const codeToCopy = btn.getAttribute('data-code');
+          if (!codeToCopy) return;
+
+          try {
+            await navigator.clipboard.writeText(codeToCopy);
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<span class="text-emerald-400 font-bold">Copiado! ✓</span>`;
+            setTimeout(() => {
+              btn.innerHTML = originalContent;
+            }, 2000);
+          } catch (err) {
+            console.error('Falha ao copiar:', err);
+          }
+        });
+      });
+
+      // --- 2. Modal de Busca Global (Ctrl + K) ---
+      const searchModal = document.getElementById('search-modal');
+      const searchInput = document.getElementById('search-input');
+      const searchModalBtn = document.getElementById('search-modal-btn');
+      const searchModalBtnMobile = document.getElementById('search-modal-btn-mobile');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      const searchResultsContainer = document.getElementById('search-results');
+
+      const openSearch = () => {
+        searchModal.classList.remove('hidden');
+        searchInput.focus();
+      };
+
+      const closeSearch = () => {
+        searchModal.classList.add('hidden');
+        searchInput.value = '';
+      };
+
+      if (searchModalBtn) searchModalBtn.addEventListener('click', openSearch);
+      if (searchModalBtnMobile) searchModalBtnMobile.addEventListener('click', openSearch);
+      if (closeModalBtn) closeModalBtn.addEventListener('click', closeSearch);
+
+      // Atalho de teclado Ctrl + K / Cmd + K
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          if (searchModal.classList.contains('hidden')) {
+            openSearch();
+          } else {
+            closeSearch();
+          }
+        }
+        if (e.key === 'Escape' && !searchModal.classList.contains('hidden')) {
+          closeSearch();
+        }
+      });
+
+      searchModal.addEventListener('click', (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      // Filtro ao vivo no modal de busca
+      if (searchInput && searchResultsContainer) {
+        const items = searchResultsContainer.querySelectorAll('.search-result-item');
+        searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(query)) {
+              item.style.display = 'block';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
+
+        // Fechar ao clicar num item da busca
+        items.forEach(item => {
+          item.addEventListener('click', () => {
+            closeSearch();
+          });
+        });
+      }
+
+      // --- 3. Scrollspy para o "Nesta Página" (TOC) ---
+      const sections = document.querySelectorAll('main section[id]');
+      const tocLinks = document.querySelectorAll('#toc-nav .toc-link');
+
+      const onScroll = () => {
+        let currentSectionId = '';
+        const scrollPosition = window.scrollY + 120;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            currentSectionId = section.getAttribute('id');
+          }
+        });
+
+        tocLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href === `#${currentSectionId}`) {
+            link.classList.add('text-ubuntu-orange', 'font-bold', 'border-l-2', 'border-ubuntu-orange', 'pl-1');
+            link.classList.remove('text-doc-textMuted');
+          } else {
+            link.classList.remove('text-ubuntu-orange', 'font-bold', 'border-l-2', 'border-ubuntu-orange', 'pl-1');
+            link.classList.add('text-doc-textMuted');
+          }
+        });
+      };
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      // --- 4. Menu Mobile Drawer ---
+      const mobileToggle = document.getElementById('mobile-menu-toggle');
+      const sidebar = document.getElementById('doc-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+
+      const toggleMobileSidebar = (show) => {
+        if (show) {
+          sidebar.classList.remove('-translate-x-full');
+          backdrop.classList.remove('hidden');
+        } else {
+          sidebar.classList.add('-translate-x-full');
+          backdrop.classList.add('hidden');
+        }
+      };
+
+      if (mobileToggle) mobileToggle.addEventListener('click', () => toggleMobileSidebar(true));
+      if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', () => toggleMobileSidebar(false));
+      if (backdrop) backdrop.addEventListener('click', () => toggleMobileSidebar(false));
+
+      // Fechar drawer ao clicar num link da sidebar
+      const sidebarLinks = sidebar.querySelectorAll('a');
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth < 1024) toggleMobileSidebar(false);
+        });
+      });
+
+      // --- 5. Filtro de Tópicos na Sidebar ---
+      const filterTopics = document.getElementById('filter-topics');
+      if (filterTopics) {
+        filterTopics.addEventListener('input', (e) => {
+          const val = e.target.value.toLowerCase();
+          const treeLinks = document.querySelectorAll('.nav-tree-link');
+          treeLinks.forEach(link => {
+            const text = link.textContent.toLowerCase();
+            const parentLi = link.closest('li');
+            if (text.includes(val)) {
+              if (parentLi) parentLi.style.display = 'block';
+            } else {
+              if (parentLi) parentLi.style.display = 'none';
+            }
+          });
+        });
+      }
+
+      // --- 6. Seletor de Versão Dropdown ---
+      const versionBtn = document.getElementById('version-btn');
+      const versionMenu = document.getElementById('version-menu');
+      if (versionBtn && versionMenu) {
+        versionBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          versionMenu.classList.toggle('hidden');
+        });
+        window.addEventListener('click', () => {
+          if (!versionMenu.classList.contains('hidden')) {
+            versionMenu.classList.add('hidden');
+          }
+        });
+      }
+
+      // --- 7. Alternador de Tema (Dark / Light) ---
+      const themeToggle = document.getElementById('theme-toggle');
+      const iconDark = document.getElementById('theme-icon-dark');
+      const iconLight = document.getElementById('theme-icon-light');
+
+      const updateThemeIcons = (isDark) => {
+        if (isDark) {
+          iconDark.classList.remove('hidden');
+          iconLight.classList.add('hidden');
+        } else {
+          iconDark.classList.add('hidden');
+          iconLight.classList.remove('hidden');
+        }
+      };
+
+      // Inicializa os ícones com o estado do documento
+      updateThemeIcons(document.documentElement.classList.contains('dark'));
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.classList.toggle('dark');
+          localStorage.setItem('arenalake_theme', isDark ? 'dark' : 'light');
+          updateThemeIcons(isDark);
+          window.dispatchEvent(new CustomEvent('arenaThemeChanged', { detail: { theme: isDark ? 'dark' : 'light' } }));
+        });
+      }
+
+      window.addEventListener('arenaThemeChanged', (e) => {
+        updateThemeIcons(e.detail.theme === 'dark');
+      });
+
+    });
+  </script>
+</body>
+</html>

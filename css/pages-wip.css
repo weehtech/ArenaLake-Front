@@ -1,0 +1,77 @@
+/* ====================================================================
+   ARENALAKE — ESTILOS PARA PÁGINAS EM DESENVOLVIMENTO
+   ==================================================================== */
+
+.dev-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 1rem;
+    gap: 1.25rem;
+    min-height: 55vh;
+}
+
+.dev-placeholder-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: rgba(243, 146, 0, 0.1);
+    color: #f39200;
+    border: 1px solid rgba(243, 146, 0, 0.25);
+}
+
+html:not(.dark) .dev-placeholder-badge {
+    color: #b45309;
+    border-color: rgba(180, 83, 9, 0.2);
+    background: rgba(180, 83, 9, 0.08);
+}
+
+.dev-placeholder h1 {
+    font-size: clamp(2rem, 3.5vw + 0.5rem, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+}
+
+html.dark .dev-placeholder h1 {
+    color: #f8fafc;
+}
+
+.dev-placeholder p {
+    font-size: clamp(0.95rem, 0.5vw + 0.75rem, 1.1rem);
+    color: #64748b;
+    max-width: 520px;
+    line-height: 1.6;
+}
+
+html.dark .dev-placeholder p {
+    color: #94a3b8;
+}
+
+.dev-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #ffffff;
+    background: #f39200;
+    box-shadow: 0 4px 14px rgba(243, 146, 0, 0.3);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.dev-back-btn:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+}

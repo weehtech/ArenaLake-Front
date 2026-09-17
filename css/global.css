@@ -1,0 +1,281 @@
+/* =========================================
+   RESET E CONFIGURAÇÃO GLOBAL
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* =========================================
+   VARIABLES & DESIGN TOKENS
+   Modo Claro Padrão (:root) e Dark (html.dark)
+   ========================================= */
+:root {
+    --arena-bg: #f8fafc;
+    --arena-bg-elevated: #ffffff;
+    --arena-surface: #ffffff;
+    --arena-surface-hover: #f1f5f9;
+    --arena-text-main: #0f172a;
+    --arena-text-muted: #475569;
+    --arena-orange: #b45309;
+    --arena-blue: #1d4ed8;
+    --arena-lines: #e2e8f0;
+
+    --body-bg: #f8fafc;
+    --body-color: #0f172a;
+}
+
+html.dark {
+    --arena-bg: #121620;
+    --arena-bg-elevated: #161C28;
+    --arena-surface: #1C2436;
+    --arena-surface-hover: #232D42;
+    --arena-text-main: #F8FAFC;
+    --arena-text-muted: #94A3B8;
+    --arena-orange: #F39200;
+    --arena-blue: #58A6FF;
+    --arena-lines: #273142;
+
+    --body-bg: #121620;
+    --body-color: #f8fafc;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    font-family: 'Space Grotesk', sans-serif, 'Manrope', sans-serif, 'DM Mono', monospace;
+    background-color: var(--body-bg);
+    color: var(--body-color);
+}
+
+/* Transição de cores suave ao alternar tema */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *:before,
+html.theme-transitioning *:after {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, fill 0.25s ease, stroke 0.25s ease !important;
+}
+
+/* Estado Padrão do Body (Com rolagem liberada) */
+body {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    background-color: var(--body-bg);
+    color: var(--body-color);
+}
+
+/* Estado da Index - Suporta Zoom sem quebrar o layout */
+body.no-scroll {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Container Principal em Flexbox Vertical */
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 1.5rem clamp(1rem, 3.5vw, 3rem);
+    max-width: 1280px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+
+body.no-scroll .page-wrapper {
+    min-height: 100vh;
+    min-height: 100dvh;
+    justify-content: space-between;
+}
+
+/* =========================================
+   CABEÇALHO (HEADER)
+   ========================================= */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 77px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+    filter: none !important;
+}
+
+.nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: clamp(0.75rem, 1.8vw, 1.5rem);
+}
+
+.nav-links a {
+    color: #475569;
+    text-decoration: none;
+    font-size: clamp(0.85rem, 1vw + 0.4rem, 0.95rem);
+    transition: color 0.2s ease;
+    white-space: nowrap;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: #0f172a;
+}
+
+html.dark .nav-links a {
+    color: #8b949e;
+}
+
+html.dark .nav-links a:hover,
+html.dark .nav-links a.active {
+    color: #f0f6fc;
+}
+
+/* =========================================
+   HEADER ACTIONS & THEME TOGGLE BUTTON
+   ========================================= */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.theme-toggle-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+.theme-toggle-btn:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+.theme-icon-sun {
+    width: 18px;
+    height: 18px;
+    color: #fbbf24;
+    display: none;
+    transition: transform 0.3s ease;
+}
+
+.theme-icon-moon {
+    width: 18px;
+    height: 18px;
+    color: #334155;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+html.dark .theme-toggle-btn {
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: #1c2436;
+    color: #94a3b8;
+}
+
+html.dark .theme-toggle-btn:hover {
+    background-color: #232d42;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+html.dark .theme-icon-sun {
+    display: block;
+}
+
+html.dark .theme-icon-moon {
+    display: none;
+}
+
+/* =========================================
+   RODAPÉ
+   ========================================= */
+footer {
+    text-align: center;
+    padding: 2rem 0 1rem 0;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+html.dark footer {
+    color: #484f58;
+}
+
+/* =========================================
+   CANVAS 3D DE FUNDO
+   ========================================= */
+canvas {
+    position: fixed !important;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 0 !important;
+    pointer-events: none;
+}
+
+/* =========================================
+   UTILITÁRIOS GLOBAIS
+   ========================================= */
+.hidden {
+    display: none !important;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* =========================================
+   RESPONSIVIDADE GLOBAL
+   ========================================= */
+@media (max-width: 768px) {
+    .page-wrapper {
+        padding: 1rem;
+    }
+}

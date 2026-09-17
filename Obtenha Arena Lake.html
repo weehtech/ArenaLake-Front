@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Script Anti-FOUC: executa de forma síncrona antes do primeiro render -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('arenalake_theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
+    <title>Obtenha Arena Lake | ArenaLake</title>
+
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/pages-wip.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <header>
+            <div class="logo">
+                <a href="Index.html">
+                    <img src="assets/img/ArenaLake_Branding.png" alt="ArenaLake Logo">
+                </a>
+            </div>
+            <div class="header-actions">
+                <nav class="nav-links">
+                    <a href="Index.html">Início</a>
+                    <a href="Sobre.html">Sobre</a>
+                    <a href="Casos de Uso.html">Casos de Uso</a>
+                    <a href="Documentacao.html">Documentação</a>
+                    <a href="Obtenha Arena Lake.html" class="active">Obtenha Arena Lake</a>
+                </nav>
+                <button
+                    type="button"
+                    id="theme-toggle-btn"
+                    data-theme-toggle
+                    aria-pressed="false"
+                    aria-label="Alternar modo claro e escuro"
+                    class="theme-toggle-btn"
+                >
+                    <span class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Alternar tema</span>
+                    <!-- Ícone do Sol (Ativo no Dark) -->
+                    <svg
+                        class="theme-icon-sun"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="12" r="4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                    </svg>
+                    <!-- Ícone da Lua (Ativo no Light) -->
+                    <svg
+                        class="theme-icon-moon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                        />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="dev-placeholder">
+            <span class="dev-placeholder-badge">Obtenha o ArenaLake</span>
+            <h1>Estamos desenvolvendo essa página</h1>
+            <p>O instalador e as instruções de download estarão disponíveis em breve.</p>
+            <a href="Index.html" class="dev-back-btn">Voltar ao Início</a>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 ArenaLake. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script src="js/theme.js"></script>
+</body>
+
+</html>

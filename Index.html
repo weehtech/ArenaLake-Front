@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Script Anti-FOUC: executa de forma síncrona antes do primeiro render -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('arenalake_theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
+    <title>ArenaLake | Datalake com Infraestrutura Ociosa</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body class="no-scroll">
+    <div class="page-wrapper">
+        <header>
+            <div class="logo">
+                <a href="Index.html">
+                    <img src="assets/img/ArenaLake_Branding.png" alt="ArenaLake Logo">
+                </a>
+            </div>
+            <div class="header-actions">
+                <nav class="nav-links">
+                    <a href="Index.html" class="active">Início</a>
+                    <a href="Sobre.html">Sobre</a>
+                    <a href="Casos de Uso.html">Casos de Uso</a>
+                    <a href="Documentacao.html">Documentação</a>
+                    <a href="Obtenha Arena Lake.html">Obtenha Arena Lake</a>
+                </nav>
+                <button
+                    type="button"
+                    id="theme-toggle-btn"
+                    data-theme-toggle
+                    aria-pressed="false"
+                    aria-label="Alternar modo claro e escuro"
+                    class="theme-toggle-btn"
+                >
+                    <span class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Alternar tema</span>
+                    <!-- Ícone do Sol (Ativo no Dark) -->
+                    <svg
+                        class="theme-icon-sun"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="12" r="4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                    </svg>
+                    <!-- Ícone da Lua (Ativo no Light) -->
+                    <svg
+                        class="theme-icon-moon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                        />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="index-main">
+            <div class="hero-content">
+                <!-- Título principal com o destaque laranja na mesma estrutura -->
+                <h1 class="hero-title">Pare de queimar dinheiro <br><span class="hero-title-orange">com a nuvem.</span>
+                </h1>
+
+                <!-- O texto longo agora é um parágrafo (p) com a classe correta -->
+                <p class="hero-description">Aproveite a infraestrutura que você já possui para armazenar, processar e
+                    analisar seus dados sem depender exclusivamente de grandes provedores de nuvem.</p>
+
+                <div class="cta-form">
+                    <button class="cta-button" type="button" onclick="window.location.href='Obtenha Arena Lake.html'">
+                        <span class="cta-icon">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="4 17 10 11 4 5"></polyline>
+                                <line x1="12" y1="19" x2="20" y2="19"></line>
+                            </svg>
+                        </span>
+                        <span>Iniciar Deploy Local</span>
+                        <span class="cta-arrow">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </span>
+                        <span class="cta-shine"></span>
+                    </button>
+
+                    <div class="cta-badge">
+                        <span class="cta-badge-dot"></span>
+                        <span>Cluster Local • S3 & Spark</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-image">
+                <img src="assets/img/dash.png" alt="Dashboard ArenaLake">
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 ArenaLake. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/lake-animation.js"></script>
+</body>
+
+</html>
